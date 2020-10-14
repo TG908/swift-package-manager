@@ -143,7 +143,8 @@ final class WorkspaceTests: XCTestCase {
                     editablesPath: sandbox.appending(component: "edits"),
                     pinsFile: sandbox.appending(component: "Package.resolved"),
                     manifestLoader: manifestLoader,
-                    delegate: TestWorkspaceDelegate()
+                    delegate: TestWorkspaceDelegate(),
+                    cachePath: path.appending(components: "tmp", "cache")
                 )
             }
 
