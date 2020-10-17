@@ -181,6 +181,10 @@ public final class InMemoryGitRepository {
     public func fetch() throws {
         // TODO.
     }
+
+    public func setURL(remote: String, url: String) throws {
+        // TODO
+    }
 }
 
 extension InMemoryGitRepository: FileSystem {
@@ -326,7 +330,9 @@ public final class InMemoryGitRepositoryProvider: RepositoryProvider {
     // Note: These methods use force unwrap (instead of throwing) to honor their preconditions.
 
     public func fetch(repository: RepositorySpecifier, to path: AbsolutePath) throws {
-        fetchedMap[path] = specifierMap[RepositorySpecifier(url: repository.url.spm_dropGitSuffix())]!.copy()
+        let repo = specifierMap[RepositorySpecifier(url: repository.url.spm_dropGitSuffix())]!
+        fetchedMap[path] = repo.copy()
+        add(specifier: RepositorySpecifier(url: path.asURL.absoluteString), repository: repo)
     }
 
     public func open(repository: RepositorySpecifier, at path: AbsolutePath) throws -> Repository {

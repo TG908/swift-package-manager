@@ -189,6 +189,15 @@ public class Workspace {
     /// The path where packages which are put in edit mode are checked out.
     public let editablesPath: AbsolutePath
 
+    /// The path where repositories are globally cached by the `RepositoryManager`
+    private let cachePath: AbsolutePath?
+
+    /// The default location of the git repository cache
+    public static let defaultCachePath: AbsolutePath? = {
+        guard let cacheURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
+        return AbsolutePath(cacheURL.path).appending(components: "org.swift.swiftpm", "repositories")
+    }()
+
     /// The file system on which the workspace will operate.
     fileprivate var fileSystem: FileSystem
 
@@ -268,7 +277,8 @@ public class Workspace {
         isResolverPrefetchingEnabled: Bool = false,
         enablePubgrubResolver: Bool = false,
         skipUpdate: Bool = false,
-        enableResolverTrace: Bool = false
+        enableResolverTrace: Bool = false,
+        cachePath: AbsolutePath? = nil
     ) {
         self.delegate = delegate
         self.dataPath = dataPath
@@ -292,11 +302,14 @@ public class Workspace {
             path: repositoriesPath,
             provider: repositoryProvider,
             delegate: delegate.map(WorkspaceRepositoryManagerDelegate.init(workspaceDelegate:)),
-            fileSystem: fileSystem)
+            fileSystem: fileSystem,
+            cachePath: cachePath)
         self.repositoryManager = repositoryManager
 
         self.checkoutsPath = self.dataPath.appending(component: "checkouts")
         self.artifactsPath = self.dataPath.appending(component: "artifacts")
+        self.cachePath = cachePath
+
         self.containerProvider = RepositoryPackageContainerProvider(
             repositoryManager: repositoryManager,
             config: self.config,
@@ -475,6 +488,15 @@ extension Workspace {
         for name in contentsToRemove {
             try? fileSystem.removeFileTree(dataPath.appending(RelativePath(name)))
         }
+    }
+
+    /// Cleans the build artefacts from workspace data.
+    ///
+    /// - Parameters:
+    ///     - diagnostics: The diagnostics engine that reports errors, warnings
+    ///       and notes.
+    public func purgeCache(with diagnostics: DiagnosticsEngine) {
+        diagnostics.wrap { try repositoryManager.purgeCache() }
     }
 
     /// Resets the entire workspace by removing the data directory.

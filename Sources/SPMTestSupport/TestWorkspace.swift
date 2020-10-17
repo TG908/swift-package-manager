@@ -173,7 +173,8 @@ public final class TestWorkspace {
             checksumAlgorithm: checksumAlgorithm,
             isResolverPrefetchingEnabled: true,
             enablePubgrubResolver: enablePubGrub,
-            skipUpdate: skipUpdate
+            skipUpdate: skipUpdate,
+            cachePath: sandbox.appending(component: ".cache")
         )
         return _workspace!
     }

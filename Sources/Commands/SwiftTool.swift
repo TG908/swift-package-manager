@@ -450,7 +450,8 @@ public class SwiftTool {
             netrcFilePath: resolvedNetrcFilePath(),
             isResolverPrefetchingEnabled: options.shouldEnableResolverPrefetching,
             skipUpdate: options.skipDependencyUpdate,
-            enableResolverTrace: options.enableResolverTrace
+            enableResolverTrace: options.enableResolverTrace,
+            cachePath: options.cachePath ?? Workspace.defaultCachePath
         )
         _workspace = workspace
         return workspace
